@@ -1,0 +1,23 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: technology-studio/github-workflows/install-dependencies@feature/dependency-actions # TODO: change to main
+      - run: yarn test --coverage
+      - uses: codecov/codecov-action@v3
+      - run: yarn semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELASE_GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          SLACK_WEBHOOK: ${{ secrets.SEMANTIC_RELEASE_SLACK_WEBHOOK }}
