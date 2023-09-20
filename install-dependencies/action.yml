@@ -1,0 +1,26 @@
+name: Install dependencies
+description: Install dependencies using yarn and enable caching
+author: 'Technology Studio'
+outputs:
+  cache-dir:
+    description: The yarn cache directory
+    value: ${{ steps.yarn-cache-dir.outputs.dir }}
+  cache-primary-key:
+    description: The cache key used for restoring the yarn cache
+    value: ${{ steps.cache-restore-yarn.outputs.cache-primary-key }}
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version-file: '.nvmrc'
+    - run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      shell: bash
+      id: yarn-cache-dir
+    - uses: actions/cache/restore@v3
+      id: cache-restore-yarn
+      with:
+        path: ${{ steps.yarn-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-

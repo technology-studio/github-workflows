@@ -1,0 +1,15 @@
+name: Save dependencies
+description: Save installed dependencies to cache
+author: 'Technology Studio'
+inputs:
+  cache-dir:
+    description: The yarn cache directory
+  cache-primary-key:
+    description: The cache key used for storing the yarn cache
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/cache/save@v3
+      with:
+        path: ${{ inputs.cache-dir }}
+        key: ${{ inputs.cache-primary-key }}
