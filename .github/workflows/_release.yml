@@ -1,6 +1,14 @@
 name: Release
+
 on:
-  workflow_dispatch:
+  workflow_call:
+    secrets:
+      SEMANTIC_RELASE_GITHUB_TOKEN:
+        required: true
+      SEMANTIC_RELEASE_SLACK_WEBHOOK:
+        required: true
+      NPM_TOKEN:
+        required: true
 
 jobs:
   release:
