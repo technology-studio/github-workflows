@@ -1,0 +1,14 @@
+name: 'Test'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
+      - run: yarn test --coverage
+      - uses: codecov/codecov-action@v3
