@@ -3,7 +3,7 @@ name: Resolve yarn.lock
 on:
   workflow_call:
     inputs:
-      pr-number:
+      pr_number:
         required: true
         type: number
       repo:
@@ -22,7 +22,7 @@ jobs:
       - name: Get PR branch names
         env:
           REPO: ${{ inputs.repo }}
-          PR_NO: ${{ inputs.pr-number }}
+          PR_NO: ${{ inputs.pr_number }}
           GH_TOKEN: ${{ github.token }}
         run: |
           echo "HEAD_BRANCH=$(gh pr view $PR_NO --repo $REPO --json headRefName --jq '.headRefName')" >> $GITHUB_ENV
