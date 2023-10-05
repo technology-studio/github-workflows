@@ -27,4 +27,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           message: "docs: synchronizing README.md"
           silent: true
-
