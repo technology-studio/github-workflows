@@ -9,12 +9,21 @@ on:
         required: true
       NPM_TOKEN:
         required: true
+      SEMANTIC_RELEASE_APP_ID:
+        required: true
+      SEMANTIC_RELEASE_APP_PRIVATE_KEY:
+        required: true
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
     steps:
+      - uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          app-id: ${{ secrets.SEMANTIC_RELEASE_APP_ID }}
+          private-key: ${{ secrets.SEMANTIC_RELEASE_APP_PRIVATE_KEY }}
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -25,7 +34,7 @@ jobs:
       - uses: codecov/codecov-action@v3
       - run: yarn semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELASE_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           SLACK_WEBHOOK: ${{ secrets.SEMANTIC_RELEASE_SLACK_WEBHOOK }}
       - uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
