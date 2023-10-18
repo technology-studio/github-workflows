@@ -1,10 +1,6 @@
 name: Install dependencies
 description: Install dependencies using yarn and enable caching
 author: 'Technology Studio'
-inputs:
-  npm_private_registry_token:
-    description: The npm token to use for installing private packages
-    required: false
 outputs:
   cache-dir:
     description: The yarn cache directory
@@ -21,8 +17,6 @@ runs:
     - run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
       shell: bash
       id: yarn-cache-dir
-      env:
-        NPM_PRIVATE_REGISTRY_TOKEN: ${{ inputs.npm_private_registry_token }}
     - uses: actions/cache/restore@v3
       id: cache-restore-yarn
       with:
