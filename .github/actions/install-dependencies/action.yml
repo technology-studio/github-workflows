@@ -1,6 +1,10 @@
 name: Install dependencies
 description: Install dependencies using yarn and enable caching
 author: 'Technology Studio'
+inputs:
+  npm_private_registry_token:
+    description: The npm token to use for installing private packages
+    required: false
 outputs:
   cache-dir:
     description: The yarn cache directory
@@ -25,4 +29,6 @@ runs:
         restore-keys: |
           ${{ runner.os }}-yarn-
     - run: yarn install --frozen-lockfile
+      env:
+        NPM_PRIVATE_REGISTRY_TOKEN: ${{ inputs.npm_private_registry_token }}
       shell: bash
