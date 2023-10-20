@@ -8,7 +8,7 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
       - run: yarn test --coverage
       - id: check-dir
@@ -19,4 +19,4 @@ jobs:
             echo "::set-output name=exists::false"
           fi
       - if: steps.check-dir.outputs.exists == 'true'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3
