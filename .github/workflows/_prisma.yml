@@ -1,0 +1,22 @@
+name: 'Prisma'
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  prisma-schema:
+    name: Validate prisma schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
+        id: install
+      - run: yarn schema:process
+      - name: Check not processed schema
+        run: |
+          git diff
+          exit $(git status --porcelain=v1 2>/dev/null|wc -l)
