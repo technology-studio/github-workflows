@@ -11,13 +11,13 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3
       with:
         node-version-file: '.nvmrc'
     - run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
       shell: bash
       id: yarn-cache-dir
-    - uses: actions/cache/restore@v3
+    - uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3
       id: cache-restore-yarn
       with:
         path: ${{ steps.yarn-cache-dir.outputs.dir }}
