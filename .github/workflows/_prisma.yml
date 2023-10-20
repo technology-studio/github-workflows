@@ -1,11 +1,7 @@
 name: 'Prisma'
 
 on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
+  workflow_call:
 
 jobs:
   prisma-schema:
