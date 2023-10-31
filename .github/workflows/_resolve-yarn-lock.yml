@@ -27,8 +27,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
-          fetch-depth: 0
-          persist-credentials: false
+          token: ${{ steps.get-token.outputs.token }}
 
       - name: Get PR branch names
         env:
@@ -43,7 +42,9 @@ jobs:
         run: |
           git config --global user.email "txo-github-bot[bot]@users.noreply.github.com"
           git config --global user.name "TXO GitHub Bot[bot]"
+          git fetch origin ${{ env.HEAD_BRANCH }}
           git checkout ${{ env.HEAD_BRANCH }}
+          git fetch origin ${{ env.BASE_BRANCH }}
           git merge origin/${{ env.BASE_BRANCH }} || true
 
       - name: Check for merge conflict on yarn.lock file
@@ -51,11 +52,16 @@ jobs:
           YARN_LOCK_HAS_CONFLICTS=$(git ls-files -u | grep yarn.lock | wc -l)
           echo "YARN_LOCK_HAS_CONFLICTS=$YARN_LOCK_HAS_CONFLICTS" >> $GITHUB_ENV
 
-      - name: Run yarn install to resolve conflicts automatically and commit yarn.lock file into pull request
+      - name: Run yarn install to resolve conflicts automatically
         if: env.YARN_LOCK_HAS_CONFLICTS > 0
         run: |
           yarn install
+      
+      - name: Commit yarn.lock
+        run: |
           git add yarn.lock
           git commit -m "chore: resolve yarn.lock"
-          git remote set-url origin https://x-access-token:${{ steps.get-token.outputs.token }}@${{ github.repository }}
+      
+      - name: Push yarn.lock
+        run: |
           git push
