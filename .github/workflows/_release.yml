@@ -3,8 +3,6 @@ name: Release
 on:
   workflow_call:
     secrets:
-      SEMANTIC_RELASE_GITHUB_TOKEN:
-        required: true
       SEMANTIC_RELEASE_SLACK_WEBHOOK:
         required: true
       NPM_TOKEN:
