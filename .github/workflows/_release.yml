@@ -7,9 +7,9 @@ on:
         required: true
       NPM_TOKEN:
         required: true
-      SEMANTIC_RELEASE_APP_ID:
+      TXO_GITHUB_BOT_APP_ID:
         required: true
-      SEMANTIC_RELEASE_APP_PRIVATE_KEY:
+      TXO_GITHUB_BOT_APP_PRIVATE_KEY:
         required: true
 
 jobs:
@@ -20,8 +20,8 @@ jobs:
       - uses: navikt/github-app-token-generator@a3831f44404199df32d8f39f7c0ad9bb8fa18b1c # v1
         id: get-token
         with:
-          app-id: ${{ secrets.SEMANTIC_RELEASE_APP_ID }}
-          private-key: ${{ secrets.SEMANTIC_RELEASE_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.TXO_GITHUB_BOT_APP_ID }}
+          private-key: ${{ secrets.TXO_GITHUB_BOT_APP_PRIVATE_KEY }}
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
           fetch-depth: 0
