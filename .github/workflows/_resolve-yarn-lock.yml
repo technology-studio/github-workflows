@@ -9,15 +9,26 @@ on:
       repo:
         required: true
         type: string
+    secrets:
+      SEMANTIC_RELEASE_APP_ID:
+        required: true
+      SEMANTIC_RELEASE_APP_PRIVATE_KEY:
+        required: true
 
 jobs:
   resolve-yarn-lock:
     runs-on: ubuntu-latest
     steps:
+      - uses: navikt/github-app-token-generator@a3831f44404199df32d8f39f7c0ad9bb8fa18b1c # v1
+        id: get-token
+        with:
+          app-id: ${{ secrets.SEMANTIC_RELEASE_APP_ID }}
+          private-key: ${{ secrets.SEMANTIC_RELEASE_APP_PRIVATE_KEY }}
       - name: Checkout code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Get PR branch names
         env:
@@ -30,8 +41,8 @@ jobs:
 
       - name: Checkout PR branch and merge base branch
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
+          git config --global user.email "txo-github-bot[bot]@users.noreply.github.com"
+          git config --global user.name "TXO GitHub Bot[bot]"
           git checkout ${{ env.HEAD_BRANCH }}
           git merge ${{ env.BASE_BRANCH }} || true
 
@@ -46,4 +57,5 @@ jobs:
           yarn install
           git add yarn.lock
           git commit -m "chore: resolve yarn.lock"
+          git remote set-url origin https://x-access-token:${{ steps.get-token.outputs.token }}@${{ github.repository }}
           git push
