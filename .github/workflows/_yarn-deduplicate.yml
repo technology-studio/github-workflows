@@ -1,0 +1,46 @@
+name: Deduplicate yarn.lock
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        required: true
+        type: number
+      repo:
+        required: true
+        type: string
+    secrets:
+      TXO_GITHUB_BOT_APP_ID:
+        required: true
+      TXO_GITHUB_BOT_APP_PRIVATE_KEY:
+        required: true
+
+jobs:
+  resolve-yarn-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: navikt/github-app-token-generator@a3831f44404199df32d8f39f7c0ad9bb8fa18b1c # v1
+        id: get-token
+        with:
+          app-id: ${{ secrets.TXO_GITHUB_BOT_APP_ID }}
+          private-key: ${{ secrets.TXO_GITHUB_BOT_APP_PRIVATE_KEY }}
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          token: ${{ steps.get-token.outputs.token }}
+
+      - name: Run `npx yarn-deduplicate`
+        run: |
+          npx yarn-deduplicate
+          yarn
+
+      - name: Commit yarn.lock
+        run: |
+          git config --global user.email "txo-github-bot[bot]@users.noreply.github.com"
+          git config --global user.name "TXO GitHub Bot[bot]"
+          git add yarn.lock
+          git commit -m "chore: run \`npx yarn-deduplicate\`"
+
+      - name: Push yarn.lock
+        run: |
+          git push
