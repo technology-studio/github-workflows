@@ -11,3 +11,9 @@ jobs:
       - uses: amannn/action-semantic-pull-request@e9fabac35e210fea40ca5b14c0da95a099eff26f # v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Send a Slack message on failure
+        if: failure()
+        uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
+        with:
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel_id: ${{ secrets.CHANNEL_ID }} 
