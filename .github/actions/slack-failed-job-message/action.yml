@@ -7,9 +7,6 @@ inputs:
   channel_id:
     description: 'Slack channel ID'
     required: true
-  message:
-    description: 'Message to send'
-    required: true
 
 runs:
   using: 'composite'
@@ -18,6 +15,6 @@ runs:
       uses: slackapi/slack-github-action@v1.25.0
       with:
         channel-id: ${{ inputs.channel_id }}
-        slack-message: ${{ inputs.message }}
+        slack-message: 'Pull request check failed: ${{ github.event.pull_request.html_url || github.event.head_commit.url }}'
       env:
         SLACK_BOT_TOKEN: ${{ inputs.slack_bot_token }}
