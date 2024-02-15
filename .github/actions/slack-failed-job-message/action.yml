@@ -1,14 +1,23 @@
-name: Send a Slack message on failed job
-description: Send a Slack message when a job fails
-author: 'Technology Studio'
+name: 'Send Slack Notification'
+description: 'Sends a message to Slack on job failure'
+inputs:
+  slack_bot_token:
+    description: 'Slack bot token'
+    required: true
+  channel_id:
+    description: 'Slack channel ID'
+    required: true
+  message:
+    description: 'Message to send'
+    required: true
+
 runs:
   using: 'composite'
   steps:
-    - name: 'Post a message'
-      id: slack
+    - name: Post a message to Slack
       uses: slackapi/slack-github-action@v1.25.0
-      with: # Use 'with' to specify the inputs to the action
-        channel-id: 'C06KCA4KEC9' # Correctly specify the channel ID here
-        slack-message: "GitHub build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}" # Your message
+      with:
+        channel-id: ${{ inputs.channel_id }}
+        slack-message: ${{ inputs.message }}
       env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }} # Ensure this secret is correctly set in your repository's secrets settings
+        SLACK_BOT_TOKEN: ${{ inputs.slack_bot_token }}
