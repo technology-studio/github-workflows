@@ -1,0 +1,53 @@
+name: "Bitrise Status Check"
+
+on:
+  workflow_call:
+
+permissions:
+  issues: read
+  pull-requests: read
+  statuses: read
+
+jobs:
+  main:
+    name: Check Bitrise build status
+    runs-on: ubuntu-latest
+    outputs:
+      hotfix: ${{ steps.pr_labels.outputs.hotfix }}
+    steps:
+      - name: Fetch PR labels
+        id: pr_labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LABELS=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels" | jq -r '.[] | .name')
+          echo "PR Labels: $LABELS"
+
+          # Check if 'hotfix' label is present and write to file
+          if echo "$LABELS" | grep -q 'hotfix'; then
+            echo "hotfix=true" >> $GITHUB_OUTPUT
+          else
+            echo "hotfix=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fetch status of latest commit on development
+        if: steps.pr_labels.outputs.hotfix != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          STATE=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/development/status" | jq -r '.state')
+          echo "Commit State on Main: $STATE"
+
+          # Update workflow based on commit state
+          if [[ "$STATE" == "failure" || "$STATE" == "pending" ]]; then
+            echo "Failing the workflow as the commit state on development is $STATE."
+            exit 1
+          else
+            echo "Succeeding the workflow. Commit state on development is $STATE."
+          fi
