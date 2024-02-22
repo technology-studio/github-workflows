@@ -44,4 +44,4 @@ jobs:
         uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
         with:
           slack_bot_token: ${{ secrets.TXO_SLACK_BOT_APP_TOKEN }}
-          channel_id: ${{ secrets. TXO_SLACK_GITHUB_OPS_CHANNEL_ID }} 
+          channel_id: ${{ secrets.TXO_SLACK_GITHUB_OPS_CHANNEL_ID }} 
