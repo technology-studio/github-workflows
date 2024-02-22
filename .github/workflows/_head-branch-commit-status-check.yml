@@ -1,8 +1,12 @@
-name: "Bitrise Status Check"
+name: "Head Branch Commit Status Check"
 
 on:
   workflow_call:
-
+    inputs:
+      head_branch:
+        required: true
+        type: string
+    
 permissions:
   issues: read
   pull-requests: read
@@ -10,7 +14,7 @@ permissions:
 
 jobs:
   main:
-    name: Check Bitrise build status
+    name: Check head branch status
     runs-on: ubuntu-latest
     outputs:
       hotfix: ${{ steps.pr_labels.outputs.hotfix }}
@@ -33,7 +37,7 @@ jobs:
             echo "hotfix=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Fetch status of latest commit on development
+      - name: Fetch status of latest commit on ${{ github.event.inputs.head_branch }}
         if: steps.pr_labels.outputs.hotfix != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,13 +45,13 @@ jobs:
           STATE=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/commits/development/status" | jq -r '.state')
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.event.inputs.head_branch }}/status" | jq -r '.state')
           echo "Commit State on Main: $STATE"
 
           # Update workflow based on commit state
           if [[ "$STATE" == "failure" || "$STATE" == "pending" ]]; then
-            echo "Failing the workflow as the commit state on development is $STATE."
+            echo "Failing the workflow as the commit state on ${{ github.event.inputs.head_branch }} is $STATE."
             exit 1
           else
-            echo "Succeeding the workflow. Commit state on development is $STATE."
+            echo "Succeeding the workflow. Commit state on ${{ github.event.inputs.head_branch }} is $STATE."
           fi
