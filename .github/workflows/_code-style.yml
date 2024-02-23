@@ -11,3 +11,9 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
       - run: yarn lint
+      - name: Send a Slack message on failure
+        if: failure()
+        uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
+        with:
+          slack_bot_token: ${{ secrets.TXO_SLACK_BOT_APP_TOKEN }}
+          channel_id: ${{ secrets.TXO_SLACK_GITHUB_OPS_CHANNEL_ID }} 
