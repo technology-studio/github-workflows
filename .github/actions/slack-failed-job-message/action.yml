@@ -16,7 +16,7 @@ runs:
       run: |
         {
           echo "SLACK_MESSAGE<<EOF"
-          echo "❌ \`${{ github.repository }}\` Workflow <${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> failed"
+          echo "\`${{ github.repository }}\` Workflow <${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> failed"
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "PR <${{ github.event.pull_request.title }} ${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>"
             echo EOF
