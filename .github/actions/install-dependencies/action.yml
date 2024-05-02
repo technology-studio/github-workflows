@@ -17,7 +17,7 @@ runs:
     - run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
       shell: bash
       id: yarn-cache-dir
-    - uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+    - uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4
       id: cache-restore-yarn
       with:
         path: ${{ steps.yarn-cache-dir.outputs.dir }}
