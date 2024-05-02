@@ -19,7 +19,7 @@ jobs:
   resolve-yarn-lock:
     runs-on: ubuntu-latest
     steps:
-      - uses: navikt/github-app-token-generator@a3831f44404199df32d8f39f7c0ad9bb8fa18b1c # v1
+      - uses: navikt/github-app-token-generator@b96ff604b2300989cd1105e3fad09199fca56681 # v1
         id: get-token
         with:
           app-id: ${{ secrets.TXO_GITHUB_BOT_APP_ID }}
@@ -28,6 +28,9 @@ jobs:
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
         with:
           token: ${{ steps.get-token.outputs.token }}
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4
+        with:
+          node-version-file: '.nvmrc'
 
       - name: Get PR branch names
         env:
