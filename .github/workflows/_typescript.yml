@@ -1,16 +1,16 @@
-name: 'Code style'
+name: 'Code quality'
 
 on:
   workflow_call:
 
 jobs:
-  lint:
-    name: Lint
+  type-check:
+    name: Type check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
-      - run: yarn tsc
+      - run: yarn typecheck
       - name: Send a Slack message on failure
         if: failure()
         uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
