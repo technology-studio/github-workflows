@@ -49,7 +49,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          CONTEXT="ci/branch-head-commit-status-check"
+          CONTEXT="ci/trunk-health"
 
           STATUSES=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
