@@ -49,18 +49,31 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          CONTEXT="ci/branch-head-commit-status-check"
+
           STATUSES=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/commits/${{ inputs.branch }}/statuses")
-
           FILTERED_STATUSES=$(echo "$STATUSES" | jq -r '.[] | select(.context | test("${{ inputs.check-status-context-pattern }}")) | .state')
+          
+          PR_HEAD_SHA=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ inputs.pr-number }}" | jq -r '.head.sha')
+
+          create_status() {
+            curl -s \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -X POST \
+              "https://api.github.com/repos/${{ github.repository }}/statuses/${PR_HEAD_SHA}" \
+              -d "{\"state\": \"$1\", \"context\": \"${CONTEXT}\", \"description\": \"$2\", \"target_url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
+          }
 
           # Check if any filtered status is success
           if echo "$FILTERED_STATUSES" | grep -q "success"; then
-            echo "Succeeding the workflow. At least one filtered commit status on ${{ inputs.branch }} is successful."
-            exit 0
+            create_status success "Branch head commit status check succeeded"
           else
-            echo "Failing the workflow as no commit status on ${{ inputs.branch }} matching the pattern is successful."
-            exit 1
+            create_status failure "Branch head commit status check failed"
           fi
