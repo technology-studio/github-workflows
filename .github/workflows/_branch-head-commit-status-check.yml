@@ -41,7 +41,7 @@ jobs:
             echo "hotfix=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Fetch status of head commit on ${{ github.event.inputs.branch }}
+      - name: Fetch status of head commit on ${{ inputs.branch }}
         if: steps.pr_labels.outputs.hotfix != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -55,9 +55,9 @@ jobs:
 
           # Check if any filtered status is pending or failure
           if echo "$FILTERED_STATUSES" | grep -qE "pending|failure"; then
-            echo "Failing the workflow as a commit status on ${{ github.event.inputs.branch }} is pending or failure."
+            echo "Failing the workflow as a commit status on ${{ inputs.branch }} is pending or failure."
             exit 1
           else
-            echo "Succeeding the workflow. All filtered commit statuses on ${{ github.event.inputs.branch }} are successful."
+            echo "Succeeding the workflow. All filtered commit statuses on ${{ inputs.branch }} are successful."
             exit 0
           fi
