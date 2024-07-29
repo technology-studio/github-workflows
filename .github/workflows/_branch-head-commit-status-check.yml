@@ -57,8 +57,9 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/commits/${{ inputs.branch }}/statuses")
 
-          FILTERED_STATUSES=$(echo "$STATUSES" | jq -r '.[] | select(.context | test("${{ inputs.check-status-context-pattern }}")) | .state')
+          FILTERED_STATUSES=$(echo "$STATUSES" | jq -r '.[] | select(.context | test("${{ inputs.check-status-context-pattern }}"))')
           echo "Filtered Statuses: $FILTERED_STATUSES"
+          FILTERED_STATUSES=$(echo "$STATUSES" | jq -r '.[] | select(.context | test("${{ inputs.check-status-context-pattern }}")) | .state')
 
           # Check if any filtered status is pending or failure
           if echo "$FILTERED_STATUSES" | grep -qE "pending|failure"; then
