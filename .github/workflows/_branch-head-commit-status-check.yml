@@ -58,6 +58,7 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/commits/${{ inputs.branch }}/statuses")
 
           FILTERED_STATUSES=$(echo "$STATUSES" | jq -r '.[] | select(.context | test("${{ inputs.check-status-context-pattern }}")) | .state')
+          echo "Filtered Statuses: $FILTERED_STATUSES"
 
           # Check if any filtered status is pending or failure
           if echo "$FILTERED_STATUSES" | grep -qE "pending|failure"; then
