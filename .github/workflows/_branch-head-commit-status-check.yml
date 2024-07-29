@@ -6,6 +6,10 @@ on:
       branch:
         required: true
         type: string
+      check-status-context-pattern:
+        required: true
+        description: Regex pattern of the check status context name
+        type: string
     
 permissions:
   issues: read
@@ -42,16 +46,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          STATE=$(curl -s \
+          STATUSES=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.event.inputs.branch }}/status" | jq -r '.state')
-          echo "Head Commit Status on ${{ github.event.inputs.branch }}: $STATE"
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ inputs.branch }}/statuses")
 
-          # Update workflow based on head commit status
-          if [[ "$STATE" == "failure" || "$STATE" == "pending" ]]; then
-            echo "Failing the workflow as the head commit status on ${{ github.event.inputs.branch }} is $STATE."
+          FILTERED_STATUSES=$(echo "$STATUSES" | jq -r '.[] | select(.context | test("${{ inputs.check-status-context-pattern }}")) | .state')
+
+          # Check if any filtered status is pending or failure
+          if echo "$FILTERED_STATUSES" | grep -qE "pending|failure"; then
+            echo "Failing the workflow as a commit status on ${{ github.event.inputs.branch }} is pending or failure."
             exit 1
           else
-            echo "Succeeding the workflow. The head commit status on ${{ github.event.inputs.branch }} is $STATE."
+            echo "Succeeding the workflow. All filtered commit statuses on ${{ github.event.inputs.branch }} are successful."
+            exit 0
           fi
