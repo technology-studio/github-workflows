@@ -10,6 +10,9 @@ on:
         required: true
         description: Regex pattern of the check status context name
         type: string
+      pr-number:
+        required: true
+        type: number
     
 permissions:
   issues: read
@@ -46,6 +49,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "::debug::PR Number: ${{ inputs.pr-number }}"
+          echo "::debug::Branch: ${{ inputs.branch }}"
+          echo "::debug::Check Status Context Pattern: ${{ inputs.check-status-context-pattern }}"
           STATUSES=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
