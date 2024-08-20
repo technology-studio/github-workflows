@@ -32,7 +32,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const TRUNK_HEALTH_CHECK_CONTEXT = 'ci/trunk-health' + '${{ inputs.platform }}';
+            const TRUNK_HEALTH_CHECK_CONTEXT = 'ci/trunk-health/' + '${{ inputs.platform }}';
             const contextPatternList = '${{ inputs.check_status_context_pattern_list }}'.split(',');
             const pullRequestNumber = ${{ inputs.pr_number }};
             const branch = '${{ inputs.branch }}';
