@@ -8,7 +8,7 @@ on:
         type: string
       check-status-context-pattern-list:
         required: true
-        description: Comma separated list of regex patterns of the check status context name (e.g. "ci\/bitrise\/${{ matrix.platform }}\/\\d+")
+        description: Comma separated list of regex patterns of the check status context name
         type: string
       pr-number:
         required: true
