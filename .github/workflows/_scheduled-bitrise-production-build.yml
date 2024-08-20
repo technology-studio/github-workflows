@@ -15,6 +15,9 @@ on:
         required: true
         description: Slug of the Bitrise production build workflow
         type: string
+      platform:
+        required: true
+        type: string
     secrets:
       BITRISE_API_TOKEN:
         required: true
@@ -35,42 +38,26 @@ jobs:
           retries: 3
           script: |
             const contextPatternList = '${{ inputs.check_status_context_pattern_list }}'.split(',')
+            const platform = '${{ inputs.platform }}'
             const { data: commits } = await github.rest.repos.listCommits({
               owner: context.repo.owner,
               repo: context.repo.repo,
               sha: context.payload.pull_request.head.sha,
               per_page: 100
             })
+            const { data: tags } = await github.paginate(github.rest.repos.listTags, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+              page: 1,
+            });
             let latestPassingCommit = null;
             for (const commit of commits) {
-              const { data: statuses } = await github.rest.repos.listCommitStatusesForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: commit.sha,
-                per_page: 100,
-              });
-              const filteredStatuses = statuses.filter(status => (
-                contextPatternList.some(pattern => status.context.match(pattern))
-              ));
-
-              console.log(`Found ${filteredStatuses.length} statuses for pattern ${contextPatternList} on commit ${commit.sha}: ${filteredStatuses.map(status => status.context)}`);
-
-              if (filteredStatuses.length > 0) {
-                const newestBuildNumber = filteredStatuses.reduce((acc, status) => {
-                  const buildNumber = parseInt(status.context.match(/\d+/)[0]);
-                  return buildNumber > acc ? buildNumber : acc;
-                }, 0);
-                console.log(`Newest build number on commit ${commit.sha}: ${newestBuildNumber}`);
-
-                const newestBuildStatus = filteredStatuses
-                  .filter(status => status.context.match(/\d+/)[0] === newestBuildNumber.toString())
-                  .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))[0];
-
-                if (newestBuildStatus.state === 'success') {
-                  console.log(`Found successful build ${newestBuildNumber} on commit ${commit.sha}`);
-                  latestPassingCommit = commit.sha;
-                  break;
-                }
+              const releaseCandidateTag = tags.find(tag => tag.commit.sha === commit.sha && tag.name.startsWith(`release-candidate/${platform}`));
+              if (releaseCandidateTag != null) {
+                console.log(`Found release candidate tag ${releaseCandidateTag.name} on commit ${commit.sha}`);
+                latestPassingCommit = commit.sha;
+                break;
               }
             }
             if (latestPassingCommit === null) {
