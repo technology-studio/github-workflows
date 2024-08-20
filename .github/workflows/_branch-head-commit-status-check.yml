@@ -10,6 +10,9 @@ on:
         required: true
         description: Comma separated list of regex patterns of the check status context name
         type: string
+      platform:
+        required: true
+        type: string
       pr_number:
         required: true
         type: number
@@ -23,15 +26,13 @@ jobs:
   main:
     name: Check head commit status
     runs-on: ubuntu-latest
-    outputs:
-      hotfix: ${{ steps.pr_labels.outputs.hotfix }}
     steps:
       - name: Fetch status of head commit on ${{ inputs.branch }} and create commit status
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const TRUNK_HEALTH_CHECK_CONTEXT = 'ci/trunk-health';
+            const TRUNK_HEALTH_CHECK_CONTEXT = 'ci/trunk-health' + context.payload.inputs.platform;
             const contextPatternList = context.payload.inputs.check_status_context_pattern_list.split(',');
             const pullRequestNumber = context.payload.inputs.pr_number;
             const branch = context.payload.inputs.branch;
