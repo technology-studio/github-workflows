@@ -6,9 +6,9 @@ on:
       branch:
         required: true
         type: string
-      check-status-context-pattern:
+      check-status-context-pattern-list:
         required: true
-        description: Regex pattern of the check status context name
+        description: Comma separated list of regex patterns of the check status context name (e.g. "ci\/bitrise\/${{ matrix.platform }}\/\\d+")
         type: string
       pr-number:
         required: true
@@ -26,57 +26,81 @@ jobs:
     outputs:
       hotfix: ${{ steps.pr_labels.outputs.hotfix }}
     steps:
-      - name: Fetch PR labels
-        id: pr_labels
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -e
-          LABELS=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${{ inputs.pr-number }}/labels" | jq -r '.[] | .name')
-          echo "PR Labels: $LABELS"
+      - name: Fetch status of head commit on ${{ inputs.branch }} and create commit status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const TRUNK_HEALTH_CHECK_CONTEXT = 'ci/trunk-health';
+            const contextPatternList = context.payload.inputs.check_status_context_pattern_list.split(',');
+            const pullRequestNumber = context.payload.inputs.pull_request;
+            const branch = context.payload.inputs.branch;
+            const pullRequest = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullRequestNumber,
+            });
+            const prHeadCommit = pullRequest.data.head.sha;
+            if (prHeadCommit == null) {
+              throw new Error('Could not get PR head commit SHA');
+            }
 
-          # Check if 'hotfix' label is present and write to file
-          if echo "$LABELS" | grep -q 'hotfix'; then
-            echo "hotfix=true" >> $GITHUB_OUTPUT
-          else
-            echo "hotfix=false" >> $GITHUB_OUTPUT
-          fi
+            const defaultCommitStatusOptions = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: prHeadCommit,
+              context: TRUNK_HEALTH_CHECK_CONTEXT,
+            };
 
-      - name: Fetch status of head commit on ${{ inputs.branch }}
-        if: steps.pr_labels.outputs.hotfix != 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -e
+            const isHotfix = pullRequest.data.labels.some(label => label.name === 'hotfix');
+            if (isHotfix) {
+              console.log('Succeeding the check as the PR is a hotfix.');
+              await github.rest.repos.createCommitStatus({
+                ...defaultCommitStatusOptions,
+                state: 'success',
+                description: 'Trunk health check passed (hotfix)',
+              });
+              return;
+            }
 
-          STATUSES=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/commits/${{ inputs.branch }}/statuses")
-          FILTERED_STATUSES=$(echo "$STATUSES" | jq --arg pattern "${{ inputs.check-status-context-pattern }}" '
-            # Filter statuses based on context pattern
-            map(select(.context | test($pattern)))
-            # Create object with context as key and array of {state, updatedAt} as value
-            | reduce .[] as $item ({};
-              .[$item.context] += [{state: $item.state, updatedAt: $item.updated_at}]
-            )
-            # Sort each context array by updatedAt in descending order
-            | map_values(sort_by(.updatedAt) | reverse)
-            # Check if all newest states are "success"
-            | to_entries
-            | map(.value[0].state == "success")
-            | all
-          ')
+            const statuses = await github.rest.repos.listCommitStatusesForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: branch,
+              per_page: 100,
+            });
+            const filteredStatuses = statuses.data.filter(status => (
+              contextPatternList.some(pattern => status.context.match(pattern))
+            ));
 
+            if (filteredStatuses.length > 0) {
+              const newestBuildNumber = filteredStatuses.reduce((acc, status) => {
+                const buildNumber = parseInt(status.context.match(/\d+/)[0]);
+                return buildNumber > acc ? buildNumber : acc;
+              }, 0);
 
-          # Check if any filtered status is success
-          if [ "$FILTERED_STATUSES" == "true" ]; then
-            echo "Succeeding the workflow. At least one filtered commit status on ${{ inputs.branch }} is successful."
-            exit 0
-          else
-            echo "Failing the workflow as no commit status on ${{ inputs.branch }} matching the pattern is successful."
-            exit 1
-          fi
+              const newestBuildStatus = filteredStatuses
+                .filter(status => status.context.match(/\d+/)[0] === newestBuildNumber.toString())
+                .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))[0];
+
+              if (newestBuildStatus.state === 'success') {
+                await github.rest.repos.createCommitStatus({
+                  ...defaultCommitStatusOptions,
+                  state: 'success',
+                  description: `Trunk health check passed (build ${newestBuildNumber})`,
+                });
+              } else {
+                await github.rest.repos.createCommitStatus({
+                  ...defaultCommitStatusOptions,
+                  state: 'failure',
+                  description: `Trunk health check failed (build ${newestBuildNumber})`,
+                });
+              }
+            } else {
+              // add pending check status
+              await github.rest.repos.createCommitStatus({
+                ...defaultCommitStatusOptions,
+                state: 'pending',
+                description: 'Trunk health check pending (no statuses found for pattern)',
+              });
+            }
