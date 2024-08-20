@@ -36,6 +36,7 @@ jobs:
             const contextPatternList = '${{ inputs.check_status_context_pattern_list }}'.split(',');
             const pullRequestNumber = ${{ inputs.pr_number }};
             const branch = '${{ inputs.branch }}';
+            console.log(`Fetching info for PR number ${pullRequestNumber} on branch ${branch}`);
             const pullRequest = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -73,24 +74,28 @@ jobs:
             const filteredStatuses = statuses.data.filter(status => (
               contextPatternList.some(pattern => status.context.match(pattern))
             ));
+            console.log(`Found ${filteredStatuses.length} statuses for pattern ${contextPatternList}: ${filteredStatuses.map(status => status.context)}`);
 
             if (filteredStatuses.length > 0) {
               const newestBuildNumber = filteredStatuses.reduce((acc, status) => {
                 const buildNumber = parseInt(status.context.match(/\d+/)[0]);
                 return buildNumber > acc ? buildNumber : acc;
               }, 0);
+              console.log(`Found newest build number: ${newestBuildNumber}`);
 
               const newestBuildStatus = filteredStatuses
                 .filter(status => status.context.match(/\d+/)[0] === newestBuildNumber.toString())
                 .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))[0];
 
               if (newestBuildStatus.state === 'success') {
+                console.log('Setting success status as the newest build is successful.');
                 await github.rest.repos.createCommitStatus({
                   ...defaultCommitStatusOptions,
                   state: 'success',
                   description: `Trunk health check passed (build ${newestBuildNumber})`,
                 });
               } else {
+                console.log('Setting failure status as the newest build is not successful.');
                 await github.rest.repos.createCommitStatus({
                   ...defaultCommitStatusOptions,
                   state: 'failure',
@@ -98,7 +103,7 @@ jobs:
                 });
               }
             } else {
-              // add pending check status
+              console.log('Setting pending status as no statuses found for pattern.');
               await github.rest.repos.createCommitStatus({
                 ...defaultCommitStatusOptions,
                 state: 'pending',
