@@ -46,7 +46,7 @@ jobs:
               sha: branchName,
               per_page: 100
             })
-            const { data: tags } = await github.paginate(github.rest.repos.listTags, {
+            const tags = await github.paginate(github.rest.repos.listTags, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               per_page: 100,
