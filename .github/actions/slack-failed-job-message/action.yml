@@ -16,14 +16,24 @@ runs:
       run: |
         {
           echo "SLACK_MESSAGE<<EOF"
-          echo "\`${{ github.repository }}\` Workflow <${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> failed"
+          echo "\`${{ github.repository }}\` Workflow <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> failed"
+          echo "Event: ${{ github.event_name }}"
+
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "PR <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }} #${{ github.event.pull_request.number }}>"
-            echo EOF
+          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "Scheduled workflow"
+            echo "Cron: ${{ github.event.schedule }}"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "Branch: \`${{ github.ref_name }}\`"
+            echo "Commit: <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
           else
-            echo "Branch \`${{ github.ref_name }}\` - <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
-            echo EOF
+            echo "Workflow details:"
+            echo "- Ref: ${{ github.ref }}"
+            echo "- SHA: ${{ github.sha }}"
           fi
+
+          echo EOF
         } >> $GITHUB_ENV
 
     - name: Post a message to Slack
