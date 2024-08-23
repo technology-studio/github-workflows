@@ -2,13 +2,14 @@ name: 'Install dependencies and generate yarn cache'
 
 on:
   workflow_dispatch:
-    commit_sha:
-      type: string
-      required: true
+    inputs:
+      commit_sha:
+        type: string
+        required: true
 
 jobs:
-  install-dependencies:
-    name: Install dependencies
+  install-dependencies-and-generate-yarn-cache:
+    name: Install dependencies and save cache
     runs-on: ubuntu-latest
     steps:
       - name: Checkout specific commit
@@ -23,4 +24,3 @@ jobs:
         with:
           cache-dir: ${{ steps.install.outputs.cache-dir }}
           cache-primary-key: ${{ steps.install.outputs.cache-primary-key }}
-
