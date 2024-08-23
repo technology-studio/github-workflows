@@ -1,0 +1,26 @@
+name: 'Install dependencies and generate yarn cache'
+
+on:
+  workflow_dispatch:
+    commit_sha:
+      type: string
+      required: true
+
+jobs:
+  install-dependencies:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout specific commit
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        with:
+          ref: ${{ inputs.commit_sha }}
+      - name: Install dependencies
+        uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
+        id: install
+      - name: Save dependencies
+        uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
+        with:
+          cache-dir: ${{ steps.install.outputs.cache-dir }}
+          cache-primary-key: ${{ steps.install.outputs.cache-primary-key }}
+
