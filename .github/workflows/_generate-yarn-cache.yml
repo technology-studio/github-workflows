@@ -1,7 +1,7 @@
 name: 'Install dependencies and generate yarn cache'
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       commit_sha:
         type: string
