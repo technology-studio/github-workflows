@@ -9,7 +9,7 @@ on:
 
 jobs:
   install-dependencies-and-generate-yarn-cache:
-    name: Install dependencies and save cache
+    name: '/'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout specific commit
