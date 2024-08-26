@@ -12,8 +12,8 @@ runs:
     - name: Save dependencies
       uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
       with:
-        cache-dir: ${{ steps.install.outputs.cache-dir }}
-        cache-primary-key: ${{ steps.install.outputs.cache-primary-key }}
+        cache-dir: ${{ inputs.cache-dir }}
+        cache-primary-key: ${{ inputs.cache-primary-key }}
     - uses: actions/cache/save@v4
       with:
         path: |

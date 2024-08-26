@@ -1,5 +1,5 @@
 name: Install app dependencies
-description: Install dependencies using yarn and enable caching
+description: Install app dependencies using yarn and enable caching
 author: 'Technology Studio'
 outputs:
   cache-dir:
