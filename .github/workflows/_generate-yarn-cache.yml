@@ -17,10 +17,10 @@ jobs:
         with:
           ref: ${{ inputs.commit_ref }}
       - name: Install app dependencies
-        uses: technology-studio/github-workflows/.github/actions/install-app-dependencies@esl/generate-yarn-cache
+        uses: technology-studio/github-workflows/.github/actions/install-app-dependencies@main
         id: install
       - name: Save app dependencies
-        uses: technology-studio/github-workflows/.github/actions/save-app-dependencies@esl/generate-yarn-cache
+        uses: technology-studio/github-workflows/.github/actions/save-app-dependencies@main
         with:
           cache-dir: ${{ steps.install.outputs.cache-dir }}
           cache-primary-key: ${{ steps.install.outputs.cache-primary-key }}
