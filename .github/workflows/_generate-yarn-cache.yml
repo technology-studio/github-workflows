@@ -16,11 +16,11 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
           ref: ${{ inputs.commit_sha }}
-      - name: Install dependencies
-        uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
+      - name: Install app dependencies
+        uses: technology-studio/github-workflows/.github/actions/install-app-dependencies@main
         id: install
-      - name: Save dependencies
-        uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
+      - name: Save app dependencies
+        uses: technology-studio/github-workflows/.github/actions/save-app-dependencies@main
         with:
           cache-dir: ${{ steps.install.outputs.cache-dir }}
           cache-primary-key: ${{ steps.install.outputs.cache-primary-key }}

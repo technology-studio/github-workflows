@@ -1,0 +1,21 @@
+name: Save dependencies
+description: Save installed dependencies to cache
+author: 'Technology Studio'
+inputs:
+  cache-dir:
+    description: The yarn cache directory
+  cache-primary-key:
+    description: The cache key used for storing the yarn cache
+runs:
+  using: 'composite'
+  steps:
+    - name: Save dependencies
+      uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
+      with:
+        cache-dir: ${{ steps.install.outputs.cache-dir }}
+        cache-primary-key: ${{ steps.install.outputs.cache-primary-key }}
+    - uses: actions/cache/save@v4
+      with:
+        path: |
+          node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}

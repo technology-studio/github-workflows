@@ -24,10 +24,12 @@ runs:
         key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-yarn-
+    - uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4
+      id: cache-restore-node-modules
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-node_modules-
     - run: yarn install --frozen-lockfile
       shell: bash
-    - uses: actions/cache/save@v4
-      with:
-        path: |
-          node_modules
-        key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
