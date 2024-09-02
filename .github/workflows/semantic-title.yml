@@ -10,4 +10,4 @@ on:
 jobs:
   main:
     name: '/'
-    uses: technology-studio/github-workflows/.github/workflows/_pr.yml@main
+    uses: technology-studio/github-workflows/.github/workflows/_semantic-title.yml@main
