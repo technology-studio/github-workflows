@@ -18,6 +18,11 @@ runs:
           echo "SLACK_MESSAGE<<EOF"
           echo "\`${{ github.repository }}\` Workflow <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> failed"
 
+          echo "[debug] event_name: ${{ github.event_name }}"
+          echo "[debug] schedule: ${{ github.event.schedule }}"
+          echo "[debug] ref_name: ${{ github.ref_name }}"
+          echo "[debug] sha: ${{ github.sha }}"
+
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "PR <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }} #${{ github.event.pull_request.number }}>"
           elif [[ "${{ github.event_name }}" == "schedule" ]]; then
