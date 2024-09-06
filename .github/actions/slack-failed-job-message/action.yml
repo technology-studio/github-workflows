@@ -19,7 +19,7 @@ runs:
           echo "\`${{ github.repository }}\` Workflow <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> failed"
 
           echo "[debug] event_name: ${{ github.event_name }}"
-          echo "[debug] schedule: ${{ github.event.schedule }}"
+          echo "[debug] schedule: \`${{ github.event.schedule }}\`"
           echo "[debug] ref_name: ${{ github.ref_name }}"
           echo "[debug] sha: ${{ github.sha }}"
 
@@ -27,14 +27,14 @@ runs:
             echo "PR <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }} #${{ github.event.pull_request.number }}>"
           elif [[ "${{ github.event_name }}" == "schedule" ]]; then
             echo "Scheduled workflow"
-            echo "Cron: `${{ github.event.schedule }}`"
+            echo "Branch: \`${{ github.ref_name }}\`"
+            echo "Commit: <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
           elif [[ "${{ github.event_name }}" == "push" ]]; then
             echo "Branch: \`${{ github.ref_name }}\`"
             echo "Commit: <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
           else
-            echo "Workflow details:"
-            echo "- Ref: ${{ github.ref }}"
-            echo "- SHA: ${{ github.sha }}"
+            echo "Branch: \`${{ github.ref_name }}\`"
+            echo "Commit: <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
           fi
 
           echo EOF
