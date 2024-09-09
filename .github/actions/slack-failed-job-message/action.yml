@@ -15,6 +15,7 @@ runs:
       shell: bash
       run: |
         {
+          COMMIT_MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
           echo "SLACK_MESSAGE<<EOF"
           echo "\`${{ github.repository }}\` Workflow <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> failed"
 
@@ -28,13 +29,14 @@ runs:
           elif [[ "${{ github.event_name }}" == "schedule" ]]; then
             echo "Scheduled workflow"
             echo "Branch: \`${{ github.ref_name }}\`"
-            echo "Commit: <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
+            echo "Commit message: \`${COMMIT_MESSAGE}\`"
           elif [[ "${{ github.event_name }}" == "push" ]]; then
             echo "Branch: \`${{ github.ref_name }}\`"
             echo "Commit: <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
           else
             echo "Branch: \`${{ github.ref_name }}\`"
-            echo "Commit: <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
+            echo "SHA: \`${{ github.sha }}\`"
+            echo "Commit message: \`${COMMIT_MESSAGE}\`"
           fi
 
           echo EOF
