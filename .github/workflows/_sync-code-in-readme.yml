@@ -10,6 +10,7 @@ on:
 
 jobs:
   embed-code:
+    name: "/"
     runs-on: ubuntu-latest
     steps:
       - uses: navikt/github-app-token-generator@b96ff604b2300989cd1105e3fad09199fca56681 # v1
