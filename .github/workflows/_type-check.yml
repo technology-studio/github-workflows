@@ -5,10 +5,10 @@ on:
 
 jobs:
   type-check:
-    name: Type check
+    name: "/"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
       - run: yarn type-check
       - name: Send a Slack message on failure
@@ -16,4 +16,4 @@ jobs:
         uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
         with:
           slack_bot_token: ${{ secrets.TXO_SLACK_BOT_APP_TOKEN }}
-          channel_id: ${{ secrets.TXO_SLACK_GITHUB_OPS_CHANNEL_ID }} 
+          channel_id: ${{ secrets.TXO_SLACK_GITHUB_OPS_CHANNEL_ID }}
