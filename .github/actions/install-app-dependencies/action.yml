@@ -2,12 +2,15 @@ name: Install app dependencies
 description: Install app dependencies using yarn and enable caching
 author: 'Technology Studio'
 outputs:
-  cache-dir:
+  download-cache-dir:
     description: The yarn cache directory
     value: ${{ steps.yarn-cache-dir.outputs.dir }}
-  cache-primary-key:
+  download-cache-primary-key:
     description: The cache key used for restoring the yarn cache
     value: ${{ steps.cache-restore-yarn.outputs.cache-primary-key }}
+  node-modules-primary-key:
+    description: The cache key used for restoring the node modules
+    value: ${{ steps.cache-restore-node-modules.outputs.cache-primary-key }}
 runs:
   using: 'composite'
   steps:

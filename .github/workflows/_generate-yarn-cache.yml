@@ -22,5 +22,6 @@ jobs:
       - name: Save app dependencies
         uses: technology-studio/github-workflows/.github/actions/save-app-dependencies@main
         with:
-          cache-dir: ${{ steps.install.outputs.cache-dir }}
-          cache-primary-key: ${{ steps.install.outputs.cache-primary-key }}
+          download-cache-dir: ${{ steps.install.outputs.download-cache-dir }}
+          download-cache-primary-key: ${{ steps.install.outputs.download-cache-primary-key }}
+          node-modules-primary-key: ${{ steps.install.outputs.node-modules-primary-key }}
