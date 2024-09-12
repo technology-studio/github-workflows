@@ -18,6 +18,8 @@ jobs:
           ref: ${{ inputs.commit_ref }}
       - name: Check if commit has succeessful checks
         uses: actions/github-script@35b1cdd1b2c1fc704b1cd9758d10f67e833fcb02
+        permissions:
+          contents: read
         id: check-commit-checks
         with:
           result-encoding: string
