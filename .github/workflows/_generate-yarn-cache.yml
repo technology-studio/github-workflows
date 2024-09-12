@@ -41,11 +41,11 @@ jobs:
             return false
       - name: Install app dependencies
         if: steps.check-commit-checks.outputs.result == 'true'
-        uses: technology-studio/github-workflows/.github/actions/install-app-dependencies@main
+        uses: technology-studio/github-workflows/.github/actions/install-app-dependencies@esl/generate-yarn-cache
         id: install
       - name: Save app dependencies
         if: steps.check-commit-checks.outputs.result == 'true'
-        uses: technology-studio/github-workflows/.github/actions/save-app-dependencies@main
+        uses: technology-studio/github-workflows/.github/actions/save-app-dependencies@esl/generate-yarn-cache
         with:
           download-cache-dir: ${{ steps.install.outputs.download-cache-dir }}
           download-cache-primary-key: ${{ steps.install.outputs.download-cache-primary-key }}
