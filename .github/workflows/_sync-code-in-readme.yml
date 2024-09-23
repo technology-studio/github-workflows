@@ -12,6 +12,7 @@ jobs:
   embed-code:
     name: "/"
     runs-on: ubuntu-latest
+    environment: default-branch-readme-sync
     steps:
       - uses: navikt/github-app-token-generator@b96ff604b2300989cd1105e3fad09199fca56681 # v1
         id: get-token
