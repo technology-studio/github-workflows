@@ -11,7 +11,7 @@ inputs:
 outputs:
   token:
     description: The GitHub App token
-    value: ${{ steps.sign_jwt.outputs.token }}
+    value: ${{ steps.generate_token.outputs.token }}
 runs:
   using: 'composite'
   steps:
@@ -24,7 +24,6 @@ runs:
         # Combine header and payload
         HEADER_PAYLOAD="${HEADER}.${PAYLOAD}"
         echo "HEADER_PAYLOAD=$HEADER_PAYLOAD" >> $GITHUB_ENV
-
     - name: Sign JWT with private key
       id: sign_jwt
       shell: bash
@@ -36,4 +35,28 @@ runs:
         rm private-key.pem
 
         JWT="${HEADER_PAYLOAD}.${SIGNATURE}"
-        echo "token=$JWT" >> $GITHUB_OUTPUT
+        echo "jwt=$JWT" >> $GITHUB_ENV
+    - name: Generate token
+      id: generate_token
+      shell: bash
+      run: |
+        response=$(curl -s -H "Authorization: Bearer ${jwt}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${repo}/installation")
+        installation_id=$(echo "$response" | jq -r .id)
+
+        if [ "$installation_id" = "null" ]; then
+            echo "Unable to get installation ID. Is the GitHub App installed on ${repo}?"
+            echo "$response" | jq -r .message
+            exit 1
+        fi
+
+        token=$(curl -s -X POST \
+                     -H "Authorization: Bearer ${jwt}" \
+                     -H "Accept: application/vnd.github.v3+json" \
+                     https://api.github.com/app/installations/"${installation_id}"/access_tokens | jq -r .token)
+
+        if [ "$token" = "null" ]; then
+            echo "Unable to generate installation access token"
+            exit 1
+        fi
+
+        echo "token=${token}" >> "$GITHUB_OUTPUT"
