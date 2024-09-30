@@ -1,0 +1,32 @@
+name: Generate GitHub App token
+description: Generate a GitHub App token
+author: 'Technology Studio'
+inputs:
+  app-id:
+    description: The GitHub App ID
+    required: true
+  private-key:
+    description: The GitHub App private key
+    required: true
+outputs:
+  token:
+    description: The GitHub App token
+    value: ${{ steps.generate-token.outputs.result }}
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/github-script@660ec11d825b714d112a6bb9727086bc2cc500b2
+      id: generate-token
+      with:
+        result-encoding: string
+        script: |
+          const { createAppAuth } = require('@octokit/auth-app');
+          const appId = process.env.APP_ID;
+          const privateKey = process.env.PRIVATE_KEY;
+          const auth = createAppAuth({ appId, privateKey });
+          const appAuthentication = await auth({ type: "app" });
+
+          const installationId = await github.rest.apps.getRepoInstallation({ owner: context.repo.owner, repo: context.repo.repo });
+          const token = await appAuthentication.createInstallationAccessToken({ installationId: installationId.data.id });
+
+          return token;
