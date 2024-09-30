@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: default-branch-readme-sync
     steps:
-      - uses: navikt/github-app-token-generator@b96ff604b2300989cd1105e3fad09199fca56681 # v1
+      - uses: technology-studio/github-workflows/.github/actions/github-app-token-generator@main
         id: get-token
         with:
           app-id: ${{ secrets.TXO_GITHUB_BOT_APP_ID }}
