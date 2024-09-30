@@ -11,22 +11,29 @@ inputs:
 outputs:
   token:
     description: The GitHub App token
-    value: ${{ steps.generate-token.outputs.result }}
+    value: ${{ steps.sign_jwt.outputs.token }}
 runs:
   using: 'composite'
   steps:
-    - uses: actions/github-script@660ec11d825b714d112a6bb9727086bc2cc500b2
-      id: generate-token
-      with:
-        result-encoding: string
-        script: |
-          const { createAppAuth } = require('@octokit/auth-app');
-          const appId = process.env.APP_ID;
-          const privateKey = process.env.PRIVATE_KEY;
-          const auth = createAppAuth({ appId, privateKey });
-          const appAuthentication = await auth({ type: "app" });
+    - name: Generate JWT Header and Payload
+      id: generate_header_payload
+      shell: bash
+      run: |
+        HEADER=$(echo -n '{"alg":"RS256","typ":"JWT"}' | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
+        PAYLOAD=$(echo -n '{"iat":'$(date +%s)',"exp":'$(($(date +%s)+600))',"iss":"${{ inputs.app-id }}"}' | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
+        # Combine header and payload
+        HEADER_PAYLOAD="${HEADER}.${PAYLOAD}"
+        echo "HEADER_PAYLOAD=$HEADER_PAYLOAD" >> $GITHUB_ENV
 
-          const installationId = await github.rest.apps.getRepoInstallation({ owner: context.repo.owner, repo: context.repo.repo });
-          const token = await appAuthentication.createInstallationAccessToken({ installationId: installationId.data.id });
+    - name: Sign JWT with private key
+      id: sign_jwt
+      shell: bash
+      env:
+        PRIVATE_KEY: ${{ inputs.private-key }}
+      run: |
+        echo "${PRIVATE_KEY}" > private-key.pem
+        SIGNATURE=$(echo -n "${HEADER_PAYLOAD}" | openssl dgst -sha256 -sign private-key.pem | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
+        rm private-key.pem
 
-          return token;
+        JWT="${HEADER_PAYLOAD}.${SIGNATURE}"
+        echo "token=$JWT" >> $GITHUB_OUTPUT
