@@ -3,7 +3,7 @@ name: "Install dependencies and generate yarn cache"
 on:
   workflow_call:
     inputs:
-      commit_ref:
+      ref:
         type: string
         required: true
 
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout specific commit
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
-          ref: ${{ inputs.commit_ref }}
+          ref: ${{ inputs.ref }}
       - name: Check if commit has succeessful checks
         uses: actions/github-script@660ec11d825b714d112a6bb9727086bc2cc500b2
         id: check-commit-checks
@@ -25,7 +25,7 @@ jobs:
             const commitStatuses = await github.paginate(github.rest.repos.listCommitStatusesForRef, {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: "${{ inputs.commit_ref }}",
+              ref: "${{ inputs.ref }}",
               per_page: 100
             })
             const isHealthy = (platform) => {
