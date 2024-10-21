@@ -2,6 +2,10 @@ name: Release
 
 on:
   workflow_call:
+    inputs:
+      cache_mode:
+        type: string
+        default: download
     secrets:
       SEMANTIC_RELEASE_SLACK_WEBHOOK:
         required: true
@@ -36,6 +40,9 @@ jobs:
           GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           SLACK_WEBHOOK: ${{ secrets.SEMANTIC_RELEASE_SLACK_WEBHOOK }}
+      - name: Remove node_modules for download cache mode
+        if: inputs.cache_mode == 'download'
+        run: rm -rf node_modules && mkdir node_modules
       - uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
         with:
           cache-dir: ${{ steps.install.outputs.cache-dir }}
