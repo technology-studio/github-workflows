@@ -2,14 +2,22 @@ name: Save dependencies
 description: Save installed dependencies to cache
 author: 'Technology Studio'
 inputs:
-  cache-dir:
+  download-cache-dir:
     description: The yarn cache directory
-  cache-primary-key:
+  download-cache-primary-key:
     description: The cache key used for storing the yarn cache
+  node-modules-primary-key:
+    description: The cache key used for restoring the node modules
 runs:
   using: 'composite'
   steps:
+    - name: Save dependencies
+      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4
+      with:
+        path: ${{ inputs.download-cache-dir }}
+        key: ${{ inputs.download-cache-primary-key }}
     - uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4
       with:
-        path: ${{ inputs.cache-dir }}
-        key: ${{ inputs.cache-primary-key }}
+        path: |
+          node_modules
+        key: ${{ inputs.node-modules-primary-key }}
