@@ -2,6 +2,10 @@ name: Release
 
 on:
   workflow_call:
+    inputs:
+      cache_mode:
+        type: string
+        default: download
     secrets:
       SEMANTIC_RELEASE_SLACK_WEBHOOK:
         required: true
@@ -23,19 +27,22 @@ jobs:
         with:
           app-id: ${{ secrets.TXO_GITHUB_BOT_APP_ID }}
           private-key: ${{ secrets.TXO_GITHUB_BOT_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
           persist-credentials: false
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
         id: install
       - run: yarn test --coverage
-      - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4
+      - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
       - run: yarn semantic-release
         env:
           GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           SLACK_WEBHOOK: ${{ secrets.SEMANTIC_RELEASE_SLACK_WEBHOOK }}
+      - name: Remove node_modules for download cache mode
+        if: inputs.cache_mode == 'download'
+        run: rm -rf node_modules && mkdir node_modules
       - uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
         with:
           cache-dir: ${{ steps.install.outputs.cache-dir }}

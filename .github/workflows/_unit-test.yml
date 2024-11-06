@@ -8,7 +8,7 @@ jobs:
     name: "/"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
       - run: yarn test --coverage
       - id: check-dir
@@ -19,7 +19,7 @@ jobs:
             echo "::set-output name=exists::false"
           fi
       - if: steps.check-dir.outputs.exists == 'true'
-        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4
+        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
       - name: Send a Slack message on failure
         if: failure()
         uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main

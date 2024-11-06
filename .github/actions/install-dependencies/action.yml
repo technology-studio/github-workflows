@@ -2,27 +2,37 @@ name: Install dependencies
 description: Install dependencies using yarn and enable caching
 author: 'Technology Studio'
 outputs:
-  cache-dir:
+  download-cache-dir:
     description: The yarn cache directory
     value: ${{ steps.yarn-cache-dir.outputs.dir }}
-  cache-primary-key:
+  download-cache-primary-key:
     description: The cache key used for restoring the yarn cache
     value: ${{ steps.cache-restore-yarn.outputs.cache-primary-key }}
+  node-modules-primary-key:
+    description: The cache key used for restoring the node modules
+    value: ${{ steps.cache-restore-node-modules.outputs.cache-primary-key }}
 runs:
   using: 'composite'
   steps:
-    - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4
+    - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
       with:
         node-version-file: '.nvmrc'
     - run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
       shell: bash
       id: yarn-cache-dir
-    - uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4
+    - uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
       id: cache-restore-yarn
       with:
         path: ${{ steps.yarn-cache-dir.outputs.dir }}
         key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-yarn-
+    - uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
+      id: cache-restore-node-modules
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-node_modules-
     - run: yarn install --frozen-lockfile
       shell: bash
