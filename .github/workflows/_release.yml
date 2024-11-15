@@ -6,6 +6,9 @@ on:
       cache_mode:
         type: string
         default: download
+      dry_run:
+        type: boolean
+        default: false
     secrets:
       SEMANTIC_RELEASE_SLACK_WEBHOOK:
         required: true
@@ -35,7 +38,7 @@ jobs:
         id: install
       - run: yarn test --coverage
       - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
-      - run: yarn semantic-release
+      - run: yarn semantic-release --dry-run=${{ inputs.dry_run }}
         env:
           GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
