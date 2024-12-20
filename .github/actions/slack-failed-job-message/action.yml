@@ -46,4 +46,4 @@ runs:
         token: ${{ inputs.slack_bot_token }}
         payload: |
           channel: ${{ inputs.channel_id }}
-          text: ${{ env.SLACK_MESSAGE }}
+          text: "${{ env.SLACK_MESSAGE }}"
