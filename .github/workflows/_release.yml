@@ -45,8 +45,9 @@ jobs:
         run: rm -rf node_modules && mkdir node_modules
       - uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
         with:
-          cache-dir: ${{ steps.install.outputs.cache-dir }}
-          cache-primary-key: ${{ steps.install.outputs.cache-primary-key }}
+          download-cache-dir: ${{ steps.install.outputs.download-cache-dir }}
+          download-cache-primary-key: ${{ steps.install.outputs.download-cache-primary-key }}
+          node-modules-primary-key: ${{ steps.install.outputs.node-modules-primary-key }}
       - name: Send a Slack message on failure
         if: failure()
         uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
