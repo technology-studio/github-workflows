@@ -10,18 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
-      - name: Get PR title
-        id: get-pr-title
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          PR_TITLE=$(gh pr view ${{ github.event.pull_request.number }} --json title --jq '.title')
-          echo "pr_title=$PR_TITLE" >> $GITHUB_ENV
-          echo "PR Title: $PR_TITLE"
-      - if: "!contains(env.pr_title, 'update dependency eslint-config-txo')"
+      - if: "!contains(github.event.pull_request.title, 'update dependency eslint-config-txo')"
         run: yarn lint:ci
       - name: Validate ESLint run if PR title contains `update dependency eslint-config-txo`
-        if: contains(env.pr_title, 'update dependency eslint-config-txo')
+        if: contains(github.event.pull_request.title, 'update dependency eslint-config-txo')
         run: yarn txo-eslint ver --cache
       - name: Send a Slack message on failure
         if: failure()
