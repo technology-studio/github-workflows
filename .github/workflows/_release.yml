@@ -27,10 +27,15 @@ jobs:
         with:
           app-id: ${{ secrets.TXO_GITHUB_BOT_APP_ID }}
           private-key: ${{ secrets.TXO_GITHUB_BOT_APP_PRIVATE_KEY }}
+      - uses: technology-studio/github-workflows/.github/actions/github-app-token-generator@main
+        id: get-release-candidate-bot-token
+        with:
+          app-id: ${{ vars.TXO_RELEASE_CANDIDATE_BOT_APP_ID }}
+          private-key: ${{ secrets.TXO_RELEASE_CANDIDATE_BOT_PRIVATE_KEY }}
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
         id: install
       - run: yarn test --coverage
@@ -43,8 +48,9 @@ jobs:
             yarn txo-eslint update-ci-rules
             changed_files=$(git diff --name-only)
             if [[ "$changed_files" == "eslint-ci-rules.json" ]]; then
-              git config --global user.email "txo-github-bot[bot]@users.noreply.github.com"
-              git config --global user.name "TXO GitHub Bot[bot]"
+              git config --global user.email "txo-release-candidate-bot[bot]@users.noreply.github.com"
+              git config --global user.name "TXO Release Candidate Bot[bot]"
+              git remote set-url origin https://x-access-token:${{ steps.get-release-candidate-bot-token.outputs.token }}@github.com/${{ github.repository }}
               git add eslint-ci-rules.json
               git commit -m "chore: update eslint-ci-rules.json [skip ci]"
               git push
