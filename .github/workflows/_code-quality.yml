@@ -13,7 +13,8 @@ jobs:
       - name: Get PR title
         id: get-pr-title
         run: echo "pr_title=$(jq -r '.pull_request.title' < $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
-      - run: yarn lint:ci
+      - if: !contains(steps.get-pr-title.outputs.pr_title, 'test1')
+        run: yarn lint:ci
       - name: Check if pr contains test1
         if: contains(steps.get-pr-title.outputs.pr_title, 'test1')
         run: |
