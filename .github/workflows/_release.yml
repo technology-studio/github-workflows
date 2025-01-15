@@ -35,6 +35,16 @@ jobs:
         id: install
       - run: yarn test --coverage
       - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
+      - name: Print debug info
+        run: |
+          echo "event.push"
+          echo ${{ toJson(github.event.push) }}
+          echo "--------------------"
+          echo "github.event.push.head_commit"
+          echo ${{ github.event.push.head_commit }}
+          echo "--------------------"
+          echo "github.event.push.head_commit.message"
+          echo ${{ github.event.push.head_commit.message }}
       - name: Update eslint-ci-rules if needed
         if: contains(github.event.push.head_commit.message, 'update dependency eslint-config-txo')
         run: |
