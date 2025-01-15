@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - run: |
+          echo "pr title: ${{ github.event.pull_request.title }}"
+          echo "pr number: ${{ github.event.pull_request.number }}"
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
       - if: "!contains(github.event.pull_request.title, 'update dependency eslint-config-txo')"
         run: yarn lint:ci
