@@ -18,13 +18,11 @@ jobs:
           PR_TITLE=$(gh pr view ${{ github.event.pull_request.number }} --json title --jq '.title')
           echo "pr_title=$PR_TITLE" >> $GITHUB_ENV
           echo "PR Title: $PR_TITLE"
-      - if: !contains(env.pr_title, 'test1')
+      - if: "!contains(env.pr_title, 'update dependency eslint-config-txo')"
         run: yarn lint:ci
-      - name: Check if pr contains test1
-        if: contains(env.pr_title, 'test1')
-        run: |
-          echo "pr contains test1"
-          yarn txo-eslint ver --cache
+      - name: Validate ESLint run if PR title contains `update dependency eslint-config-txo`
+        if: contains(env.pr_title, 'update dependency eslint-config-txo')
+        run: yarn txo-eslint ver --cache
       - name: Send a Slack message on failure
         if: failure()
         uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
