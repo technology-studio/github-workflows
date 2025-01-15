@@ -21,7 +21,7 @@ jobs:
       - if: "!contains(env.pr_title, 'test1')"
         run: yarn lint:ci
       - name: Check if pr contains test1
-        if: contains(steps.get-pr-title.outputs.pr_title, 'test1')
+        if: contains(env.pr_title, 'test1')
         run: |
           echo "pr contains test1"
           yarn txo-eslint ver --cache
