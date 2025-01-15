@@ -35,6 +35,21 @@ jobs:
         id: install
       - run: yarn test --coverage
       - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
+      - name: Update eslint-ci-rules if needed
+        if: contains(github.head_commit.message, 'update dependency eslint-config-txo')
+        run: |
+          if ! yarn lint:ci; then
+            echo "Linting failed. Updating eslint-ci-rules.json..."
+            yarn txo-eslint update-ci-rules
+            changed_files=$(git diff --name-only)
+            if [[ "$changed_files" == "eslint-ci-rules.json" ]]; then
+              git add eslint-ci-rules.json
+              git commit -m "chore: update eslint-ci-rules.json [skip ci]"
+              git push
+            fi
+          else
+            echo "Linting passed. No update needed."
+          fi
       - run: yarn semantic-release
         env:
           GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
