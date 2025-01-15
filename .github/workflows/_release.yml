@@ -40,16 +40,10 @@ jobs:
           echo "event"
           echo ${{ toJson(github.event) }}
           echo "--------------------"
-          echo "event.push"
-          echo ${{ toJson(github.event.push) }}
-          echo "--------------------"
-          echo "github.event.push.head_commit"
-          echo ${{ github.event.push.head_commit }}
-          echo "--------------------"
-          echo "github.event.push.head_commit.message"
-          echo ${{ github.event.push.head_commit.message }}
+          echo "github.event.head_commit.message"
+          echo ${{ github.event.head_commit.message }}
       - name: Update eslint-ci-rules if needed
-        if: contains(github.event.push.head_commit.message, 'update dependency eslint-config-txo')
+        if: contains(github.event.head_commit.message, 'update dependency eslint-config-txo')
         run: |
           if ! yarn lint:ci; then
             echo "Linting failed. Updating eslint-ci-rules.json..."
