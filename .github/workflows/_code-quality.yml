@@ -10,7 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
+      - name: Get PR title
+        id: get-pr-title
+        run: echo "pr_title=$(jq -r '.pull_request.title' < $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
       - run: yarn lint:ci
+      - name: Check if pr contains test1
+        if: contains(steps.get-pr-title.outputs.pr_title, 'test1')
+        run: |
+          echo "pr contains test1"
+          yarn txo-eslint ver --cache
       - name: Send a Slack message on failure
         if: failure()
         uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
