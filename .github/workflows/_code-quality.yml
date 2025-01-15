@@ -18,7 +18,7 @@ jobs:
           PR_TITLE=$(gh pr view ${{ github.event.pull_request.number }} --json title --jq '.title')
           echo "pr_title=$PR_TITLE" >> $GITHUB_ENV
           echo "PR Title: $PR_TITLE"
-      - if: "!contains(env.pr_title, 'test1')"
+      - if: !contains(env.pr_title, 'test1')
         run: yarn lint:ci
       - name: Check if pr contains test1
         if: contains(env.pr_title, 'test1')
