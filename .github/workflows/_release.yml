@@ -43,8 +43,8 @@ jobs:
             yarn txo-eslint update-ci-rules
             changed_files=$(git diff --name-only)
             if [[ "$changed_files" == "eslint-ci-rules.json" ]]; then
-              git config --global user.email "txo-release-candidate-bot[bot]@users.noreply.github.com"
-              git config --global user.name "TXO Release Candidate Bot[bot]"
+              git config --global user.email "txo-github-bot[bot]@users.noreply.github.com"
+              git config --global user.name "TXO GitHub Bot[bot]"
               git remote set-url origin https://x-access-token:${{ steps.get-token.outputs.token }}@github.com/${{ github.repository }}
               git add eslint-ci-rules.json
               git commit -m "chore: update eslint-ci-rules.json [skip ci]"
