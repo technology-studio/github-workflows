@@ -12,7 +12,10 @@ jobs:
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
       - name: Get PR title
         id: get-pr-title
-        run: echo "pr_title=$(jq -r '.pull_request.title' < $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
+        run: |
+          PR_TITLE=$(gh pr view ${{ github.event.pull_request.number }} --json title --jq '.title')
+          echo "pr_title=$PR_TITLE" >> $GITHUB_ENV
+          echo "PR Title: $PR_TITLE"
       - if: "!contains(steps.get-pr-title.outputs.pr_title, 'test1')"
         run: yarn lint:ci
       - name: Check if pr contains test1
