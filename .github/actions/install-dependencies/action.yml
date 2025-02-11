@@ -1,6 +1,11 @@
 name: Install dependencies
 description: Install dependencies using yarn and enable caching
 author: 'Technology Studio'
+inputs:
+  use-cache:
+    description: Whether to use the cache
+    required: false
+    default: 'true'
 outputs:
   download-cache-dir:
     description: The yarn cache directory
@@ -21,6 +26,7 @@ runs:
       shell: bash
       id: yarn-cache-dir
     - uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+      if: inputs.use-cache == 'true'
       id: cache-restore-yarn
       with:
         path: ${{ steps.yarn-cache-dir.outputs.dir }}
@@ -28,6 +34,7 @@ runs:
         restore-keys: |
           ${{ runner.os }}-yarn-
     - uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+      if: inputs.use-cache == 'true'
       id: cache-restore-node-modules
       with:
         path: node_modules
