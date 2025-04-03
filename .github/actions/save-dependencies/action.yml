@@ -3,9 +3,9 @@ description: Save installed dependencies to cache
 author: 'Technology Studio'
 inputs:
   download-cache-dir:
-    description: The yarn cache directory
+    description: The yarn/bun cache directory
   download-cache-primary-key:
-    description: The cache key used for storing the yarn cache
+    description: The cache key used for storing the yarn/bun cache
   node-modules-primary-key:
     description: The cache key used for restoring the node modules
   cache_mode:
