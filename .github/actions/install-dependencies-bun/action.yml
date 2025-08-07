@@ -25,7 +25,7 @@ runs:
     - run: echo "dir=$(bun pm cache)" >> $GITHUB_OUTPUT
       shell: bash
       id: bun-cache-dir
-    - uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+    - uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
       if: inputs.use-cache == 'true'
       id: cache-restore-bun
       with:
@@ -33,7 +33,7 @@ runs:
         key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
         restore-keys: |
           ${{ runner.os }}-bun-
-    - uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+    - uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
       if: inputs.use-cache == 'true'
       id: cache-restore-node-modules
       with:
