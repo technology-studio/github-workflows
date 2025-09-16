@@ -3,6 +3,9 @@ name: "PR"
 on:
   workflow_call:
 
+permissions:
+  pull-requests: read
+
 jobs:
   semantic-title:
     name: "/"
