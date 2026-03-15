@@ -9,12 +9,14 @@ on:
     secrets:
       SEMANTIC_RELEASE_SLACK_WEBHOOK:
         required: true
-      NPM_TOKEN:
-        required: true
       TXO_GITHUB_BOT_APP_ID:
         required: true
       TXO_GITHUB_BOT_APP_PRIVATE_KEY:
         required: true
+
+permissions:
+  id-token: write
+  contents: write
 
 jobs:
   release:
@@ -58,7 +60,6 @@ jobs:
       - run: yarn semantic-release
         env:
           GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           SLACK_WEBHOOK: ${{ secrets.SEMANTIC_RELEASE_SLACK_WEBHOOK }}
       - uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
         with:
