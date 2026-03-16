@@ -12,10 +12,10 @@ outputs:
     value: ${{ steps.yarn-cache-dir.outputs.dir }}
   download-cache-primary-key:
     description: The cache key used for restoring the yarn cache
-    value: ${{ steps.cache-restore-yarn.outputs.cache-primary-key }}
+    value: ${{ steps.cache-keys.outputs.download-cache-primary-key }}
   node-modules-primary-key:
     description: The cache key used for restoring the node modules
-    value: ${{ steps.cache-restore-node-modules.outputs.cache-primary-key }}
+    value: ${{ steps.cache-keys.outputs.node-modules-primary-key }}
 runs:
   using: 'composite'
   steps:
@@ -25,12 +25,17 @@ runs:
     - run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
       shell: bash
       id: yarn-cache-dir
+    - run: |
+        echo "download-cache-primary-key=${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}" >> $GITHUB_OUTPUT
+        echo "node-modules-primary-key=${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}" >> $GITHUB_OUTPUT
+      shell: bash
+      id: cache-keys
     - uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
       if: inputs.use-cache == 'true'
       id: cache-restore-yarn
       with:
         path: ${{ steps.yarn-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+        key: ${{ steps.cache-keys.outputs.download-cache-primary-key }}
         restore-keys: |
           ${{ runner.os }}-yarn-
     - uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
@@ -38,7 +43,7 @@ runs:
       id: cache-restore-node-modules
       with:
         path: node_modules
-        key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
+        key: ${{ steps.cache-keys.outputs.node-modules-primary-key }}
         restore-keys: |
           ${{ runner.os }}-node_modules-
     - run: yarn install --frozen-lockfile
