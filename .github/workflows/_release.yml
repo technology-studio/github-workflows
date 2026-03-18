@@ -38,7 +38,7 @@ jobs:
         with:
           use-cache: false
       - run: yarn test --coverage
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
+      - uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5
       - name: Update eslint-ci-rules if needed
         if: ${{ contains(github.event.head_commit.message, 'update dependency eslint-config-txo') || contains(github.event.head_commit.message, 'update eslint txo packages') }}
         run: |
