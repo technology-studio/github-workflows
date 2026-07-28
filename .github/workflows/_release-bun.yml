@@ -1,4 +1,4 @@
-name: Release (bun)
+name: Release
 
 on:
   workflow_call:
