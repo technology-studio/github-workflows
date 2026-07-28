@@ -18,11 +18,11 @@ runs:
       run: rm -rf node_modules && mkdir node_modules
       shell: bash
     - name: Save dependencies
-      uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: ${{ inputs.download-cache-dir }}
         key: ${{ inputs.download-cache-primary-key }}
-    - uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+    - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: |
           node_modules
