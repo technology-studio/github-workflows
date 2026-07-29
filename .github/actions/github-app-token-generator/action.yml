@@ -13,8 +13,9 @@ inputs:
     required: true
   owner:
     description: >-
-      Owner of the installation. Defaults to the current repository owner, which scopes the
-      token to every repository in that owner's installation. Narrow it with `repositories`.
+      Owner of the installation. When unset (the default), the token is scoped to the current
+      repository only. Setting `owner` without `repositories` scopes the token to every
+      repository in that owner's installation.
     required: false
   repositories:
     description: Comma or newline separated repositories to scope the token to. Defaults to the current repository.
@@ -38,5 +39,5 @@ runs:
         app-id: ${{ inputs.app-id }}
         client-id: ${{ inputs.client-id }}
         private-key: ${{ inputs.private-key }}
-        owner: ${{ inputs.owner || github.repository_owner }}
+        owner: ${{ inputs.owner }}
         repositories: ${{ inputs.repositories }}
