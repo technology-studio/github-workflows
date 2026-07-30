@@ -2,12 +2,9 @@ name: Generate GitHub App token
 description: Generate a GitHub App installation access token
 author: 'Technology Studio'
 inputs:
-  app-id:
-    description: The GitHub App ID. Deprecated upstream, prefer client-id.
-    required: false
   client-id:
     description: The GitHub App Client ID
-    required: false
+    required: true
   private-key:
     description: The GitHub App private key
     required: true
@@ -36,7 +33,6 @@ runs:
     - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       id: generate_token
       with:
-        app-id: ${{ inputs.app-id }}
         client-id: ${{ inputs.client-id }}
         private-key: ${{ inputs.private-key }}
         owner: ${{ inputs.owner }}
