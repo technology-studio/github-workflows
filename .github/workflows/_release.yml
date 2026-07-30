@@ -9,9 +9,9 @@ on:
     secrets:
       SEMANTIC_RELEASE_SLACK_WEBHOOK:
         required: true
-      TXO_GITHUB_BOT_APP_ID:
+      TXO_SLACK_BOT_APP_TOKEN:
         required: true
-      TXO_GITHUB_BOT_APP_PRIVATE_KEY:
+      TXO_SLACK_GITHUB_OPS_CHANNEL_ID:
         required: true
 
 permissions:
@@ -24,11 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: default-branch-semantic-release
     steps:
-      - uses: technology-studio/github-workflows/.github/actions/github-app-token-generator@main
-        id: get-token
-        with:
-          app-id: ${{ secrets.TXO_GITHUB_BOT_APP_ID }}
-          private-key: ${{ secrets.TXO_GITHUB_BOT_APP_PRIVATE_KEY }}
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
@@ -39,27 +34,9 @@ jobs:
           use-cache: false
       - run: yarn test --coverage
       - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
-      - name: Update eslint-ci-rules if needed
-        if: ${{ contains(github.event.head_commit.message, 'update dependency eslint-config-txo') || contains(github.event.head_commit.message, 'update eslint txo packages') }}
-        run: |
-          if ! yarn lint:ci; then
-            echo "Linting failed. Updating eslint-ci-rules.json..."
-            yarn txo-eslint update-ci-rules
-            changed_files=$(git diff --name-only)
-            if [[ "$changed_files" == "eslint-ci-rules.json" ]]; then
-              git config --global user.email "txo-github-bot[bot]@users.noreply.github.com"
-              git config --global user.name "TXO GitHub Bot[bot]"
-              git remote set-url origin https://x-access-token:${{ steps.get-token.outputs.token }}@github.com/${{ github.repository }}
-              git add eslint-ci-rules.json
-              git commit -m "chore: update eslint-ci-rules.json [skip ci]"
-              git push
-            fi
-          else
-            echo "Linting passed. No update needed."
-          fi
       - run: yarn semantic-release
         env:
-          GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK: ${{ secrets.SEMANTIC_RELEASE_SLACK_WEBHOOK }}
       - uses: technology-studio/github-workflows/.github/actions/save-dependencies@main
         with:
