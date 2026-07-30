@@ -15,29 +15,47 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        REPOSITORY: ${{ github.repository }}
+        SERVER_URL: ${{ github.server_url }}
+        RUN_ID: ${{ github.run_id }}
+        WORKFLOW: ${{ github.workflow }}
+        EVENT_NAME: ${{ github.event_name }}
+        REF_NAME: ${{ github.ref_name }}
+        SHA: ${{ github.sha }}
+        PR_URL: ${{ github.event.pull_request.html_url }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        HEAD_COMMIT_URL: ${{ github.event.head_commit.url }}
+        HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       run: |
+        COMMIT_MESSAGE=$(gh api "repos/${REPOSITORY}/commits/${SHA}" --jq '.commit.message')
+        DELIMITER="EOF_$(openssl rand -hex 16)"
         {
-          COMMIT_MESSAGE=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }} --jq '.commit.message')
-          echo "SLACK_MESSAGE<<EOF"
-          echo "\`${{ github.repository }}\` Workflow <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}> failed"
+          echo "SLACK_MESSAGE<<${DELIMITER}"
+          echo "\`${REPOSITORY}\` Workflow <${SERVER_URL}/${REPOSITORY}/actions/runs/${RUN_ID}|${WORKFLOW}> failed"
 
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "PR <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }} #${{ github.event.pull_request.number }}>"
-          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
-            echo "Scheduled workflow"
-            echo "Branch: \`${{ github.ref_name }}\` - SHA: \`${{ github.sha }}\`"
-            echo "Commit message: \`${COMMIT_MESSAGE}\`"
-          elif [[ "${{ github.event_name }}" == "push" ]]; then
-            echo "Branch: \`${{ github.ref_name }}\`"
-            echo "Commit: <${{ github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
-          else
-            echo "Branch: \`${{ github.ref_name }}\`"
-            echo "SHA: \`${{ github.sha }}\`"
-            echo "Commit message: \`${COMMIT_MESSAGE}\`"
-          fi
+          case "${EVENT_NAME}" in
+            pull_request)
+              echo "PR <${PR_URL}|${PR_TITLE} #${PR_NUMBER}>"
+              ;;
+            schedule)
+              echo "Scheduled workflow"
+              echo "Branch: \`${REF_NAME}\` - SHA: \`${SHA}\`"
+              echo "Commit message: \`${COMMIT_MESSAGE}\`"
+              ;;
+            push)
+              echo "Branch: \`${REF_NAME}\`"
+              echo "Commit: <${HEAD_COMMIT_URL}|${HEAD_COMMIT_MESSAGE}>"
+              ;;
+            *)
+              echo "Branch: \`${REF_NAME}\`"
+              echo "SHA: \`${SHA}\`"
+              echo "Commit message: \`${COMMIT_MESSAGE}\`"
+              ;;
+          esac
 
-          echo EOF
-        } >> $GITHUB_ENV
+          echo "${DELIMITER}"
+        } >> "$GITHUB_ENV"
 
     - name: Post a message to Slack
       uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
