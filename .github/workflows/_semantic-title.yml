@@ -2,6 +2,11 @@ name: "PR"
 
 on:
   workflow_call:
+    secrets:
+      TXO_SLACK_BOT_APP_TOKEN:
+        required: true
+      TXO_SLACK_GITHUB_OPS_CHANNEL_ID:
+        required: true
 
 permissions:
   pull-requests: read
