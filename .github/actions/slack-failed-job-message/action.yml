@@ -28,7 +28,8 @@ runs:
         HEAD_COMMIT_URL: ${{ github.event.head_commit.url }}
         HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       run: |
-        COMMIT_MESSAGE=$(gh api "repos/${REPOSITORY}/commits/${SHA}" --jq '.commit.message')
+        COMMIT_MESSAGE=$(gh api "repos/${REPOSITORY}/commits/${SHA}" --jq '.commit.message' 2>/dev/null) \
+          || COMMIT_MESSAGE='(unavailable)'
         DELIMITER="EOF_$(openssl rand -hex 16)"
         {
           echo "SLACK_MESSAGE<<${DELIMITER}"
