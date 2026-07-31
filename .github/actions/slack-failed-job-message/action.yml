@@ -7,6 +7,10 @@ inputs:
   channel_id:
     description: 'Slack channel ID'
     required: true
+  status_text:
+    description: 'Text shown after the workflow link'
+    required: false
+    default: '🔴 failed'
 
 runs:
   using: 'composite'
@@ -27,13 +31,14 @@ runs:
         PR_NUMBER: ${{ github.event.pull_request.number }}
         HEAD_COMMIT_URL: ${{ github.event.head_commit.url }}
         HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        STATUS_TEXT: ${{ inputs.status_text }}
       run: |
         COMMIT_MESSAGE=$(gh api "repos/${REPOSITORY}/commits/${SHA}" --jq '.commit.message' 2>/dev/null) \
           || COMMIT_MESSAGE='(unavailable)'
         DELIMITER="EOF_$(openssl rand -hex 16)"
         {
           echo "SLACK_MESSAGE<<${DELIMITER}"
-          echo "\`${REPOSITORY}\` Workflow <${SERVER_URL}/${REPOSITORY}/actions/runs/${RUN_ID}|${WORKFLOW}> failed"
+          echo "\`${REPOSITORY}\` Workflow <${SERVER_URL}/${REPOSITORY}/actions/runs/${RUN_ID}|${WORKFLOW}> ${STATUS_TEXT}"
 
           case "${EVENT_NAME}" in
             pull_request | pull_request_target)
