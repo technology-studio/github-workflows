@@ -19,7 +19,7 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+    - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
       with:
         bun-version-file: ".bun-version"
     - run: echo "dir=$(bun pm cache)" >> $GITHUB_OUTPUT
@@ -30,7 +30,7 @@ runs:
         echo "node-modules-primary-key=${{ runner.os }}-node_modules-${{ hashFiles('bun.lock') }}" >> $GITHUB_OUTPUT
       shell: bash
       id: cache-keys
-    - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+    - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       if: inputs.use-cache == 'true'
       id: cache-restore-bun
       with:
@@ -38,7 +38,7 @@ runs:
         key: ${{ steps.cache-keys.outputs.download-cache-primary-key }}
         restore-keys: |
           ${{ runner.os }}-bun-
-    - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+    - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       if: inputs.use-cache == 'true'
       id: cache-restore-node-modules
       with:
