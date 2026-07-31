@@ -14,9 +14,9 @@ jobs:
       - id: check-dir
         run: |
           if [[ -d "coverage" ]]; then
-            echo "::set-output name=exists::true"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::set-output name=exists::false"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
       - if: steps.check-dir.outputs.exists == 'true'
         id: codecov
