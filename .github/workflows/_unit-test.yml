@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
+      - uses: technology-studio/github-workflows/.github/actions/install-dependencies@331e6f866da04053d27ba5890d1b9c60bc8ed2fa # main
       - run: yarn test --coverage
       - id: check-dir
         run: |
@@ -26,14 +26,14 @@ jobs:
           fail_ci_if_error: true
       - name: Send a Slack message on codecov failure
         if: steps.codecov.outcome == 'failure'
-        uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
+        uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@331e6f866da04053d27ba5890d1b9c60bc8ed2fa # main
         with:
           slack_bot_token: ${{ secrets.TXO_SLACK_BOT_APP_TOKEN }}
           channel_id: ${{ secrets.TXO_SLACK_GITHUB_OPS_CHANNEL_ID }}
           status_text: '🟠 codecov upload failed (job continued)'
       - name: Send a Slack message on failure
         if: failure()
-        uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
+        uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@331e6f866da04053d27ba5890d1b9c60bc8ed2fa # main
         with:
           slack_bot_token: ${{ secrets.TXO_SLACK_BOT_APP_TOKEN }}
           channel_id: ${{ secrets.TXO_SLACK_GITHUB_OPS_CHANNEL_ID }}
