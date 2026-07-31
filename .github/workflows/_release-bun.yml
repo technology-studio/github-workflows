@@ -42,7 +42,18 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
       - if: steps.check-coverage.outputs.exists == 'true'
+        id: codecov
+        continue-on-error: true
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        with:
+          fail_ci_if_error: true
+      - name: Send a Slack message on codecov failure
+        if: steps.codecov.outcome == 'failure'
+        uses: technology-studio/github-workflows/.github/actions/slack-failed-job-message@main
+        with:
+          slack_bot_token: ${{ secrets.TXO_SLACK_BOT_APP_TOKEN }}
+          channel_id: ${{ secrets.TXO_SLACK_GITHUB_OPS_CHANNEL_ID }}
+          status_text: '🟠 codecov upload failed (job continued)'
       - run: bun run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
