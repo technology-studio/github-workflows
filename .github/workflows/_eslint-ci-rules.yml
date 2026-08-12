@@ -16,7 +16,7 @@ jobs:
     if: >-
       github.actor == 'renovate[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      startsWith(github.head_ref, 'renovate/eslint-config-txo')
+      github.head_ref == 'renovate/eslint-txo-packages'
     runs-on: ubuntu-latest
     permissions:
       contents: read
