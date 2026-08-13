@@ -3,50 +3,66 @@ name: Update eslint CI rules
 on:
   workflow_call:
     inputs:
-      cache_mode:
+      package_manager:
         type: string
-        default: download
+        required: true
+    secrets:
+      TXO_ESLINT_RULES_BOT_PRIVATE_KEY:
+        required: true
 
 jobs:
   update-eslint-ci-rules:
     name: "/"
-    if: false
+    if: >-
+      github.actor == 'renovate[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.head_ref == 'renovate/eslint-txo-packages'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
+      - uses: technology-studio/github-workflows/.github/actions/github-app-token-generator@main
+        id: get-token
+        with:
+          client-id: ${{ vars.TXO_ESLINT_RULES_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.TXO_ESLINT_RULES_BOT_PRIVATE_KEY }}
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          persist-credentials: false
+          ref: ${{ github.head_ref }}
+          token: ${{ steps.get-token.outputs.token }}
       - uses: technology-studio/github-workflows/.github/actions/install-dependencies@main
-        id: install
-        with:
-          use-cache: false
+        if: inputs.package_manager == 'yarn'
+      - uses: technology-studio/github-workflows/.github/actions/install-dependencies-bun@main
+        if: inputs.package_manager == 'bun'
       - name: Update eslint-ci-rules if needed (yarn)
+        if: inputs.package_manager == 'yarn'
         run: |
           if ! yarn lint:ci; then
             echo "Linting failed. Updating eslint-ci-rules.json..."
             yarn txo-eslint update-ci-rules
             changed_files=$(git diff --name-only)
             if [[ "$changed_files" == "eslint-ci-rules.json" ]]; then
-              git config --global user.email "txo-github-bot[bot]@users.noreply.github.com"
-              git config --global user.name "TXO GitHub Bot[bot]"
+              git config --global user.email "txo-eslint-rules-bot[bot]@users.noreply.github.com"
+              git config --global user.name "TXO Eslint Rules Bot[bot]"
               git add eslint-ci-rules.json
-              git commit -m "chore: update eslint-ci-rules.json [skip ci]"
+              git commit -m "chore: update eslint-ci-rules.json"
               git push
             fi
           else
             echo "Linting passed. No update needed."
           fi
       - name: Update eslint-ci-rules if needed (bun)
+        if: inputs.package_manager == 'bun'
         run: |
           if ! bun run --bun lint:ci; then
             echo "Linting failed. Updating eslint-ci-rules.json..."
             bun run --bun txo-eslint update-ci-rules
             changed_files=$(git diff --name-only)
             if [[ "$changed_files" == "eslint-ci-rules.json" ]]; then
-              git config --global user.email "txo-github-bot[bot]@users.noreply.github.com"
-              git config --global user.name "TXO GitHub Bot[bot]"
+              git config --global user.email "txo-eslint-rules-bot[bot]@users.noreply.github.com"
+              git config --global user.name "TXO Eslint Rules Bot[bot]"
               git add eslint-ci-rules.json
-              git commit -m "chore: update eslint-ci-rules.json [skip ci]"
+              git commit -m "chore: update eslint-ci-rules.json"
               git push
             fi
           else
